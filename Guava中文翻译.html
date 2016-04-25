@@ -1,0 +1,141 @@
+<!DOCTYPE html><html><head><title>Guava中文翻译</title><meta charset='utf-8'><link href='https://dn-maxiang.qbox.me/res-min/themes/marxico.css' rel='stylesheet'><style>
+.note-content  {font-family: 微软雅黑, 'Helvetica Neue', Arial, 'Hiragino Sans GB', STHeiti, 'Microsoft YaHei', 'WenQuanYi Micro Hei', SimSun, Song, sans-serif;}
+
+</style></head><body><div id='preview-contents' class='note-content'>
+                        <div id="wmd-preview" class="preview-content"></div>
+                    <div id="wmd-preview-section-1" class="wmd-preview-section preview-content">
+
+</div><div id="wmd-preview-section-15" class="wmd-preview-section preview-content">
+
+<h1 id="guava中文翻译">Guava中文翻译</h1></div><div id="wmd-preview-section-29" class="wmd-preview-section preview-content">
+
+<h2 id="用户指南">用户指南</h2>
+
+<p>Guava项目包含很多谷歌的核心库，我们在项目中用到了很多这些Java类库，如集合、缓存、基础类型支持、并发库、通用注解、字符串处理、I/O等。Google的码农每天都在使用这些工具，并切已用之于生产服务中。</p>
+
+<p>查阅Javadoc不总是最有效的方式来学习以及使用一个类库。对于Guava，我们尝试提供可读性良好的，令人愉悦的说明来解释很受欢迎，实用性很强功能特性。</p>
+
+<p>这份wiki指南处于不断更新中，部分还待续. 不仅仅囊括的内容有：</p>
+
+<ul><li>知暖知热的基础工具</li>
+<li>爱不释手的集合工具</li>
+<li>别具一格的缓存工具</li>
+<li>时髦潮流的函数式编程</li>
+<li>锦上添花的并发工具</li>
+<li>曲径通幽的字符串工具</li>
+<li>删繁就简的I/O工具</li>
+<li>细致精密的散列构建</li>
+<li>即感即知的事件总线</li>
+<li>喜闻乐见的数学工具</li>
+<li>相忘于江湖的反射工具</li>
+<li>零零散散的小贴士</li>
+</ul></div><div id="wmd-preview-section-43" class="wmd-preview-section preview-content">
+
+<h3 id="知暖知热的基础工具">知暖知热的基础工具</h3></div><div id="wmd-preview-section-57" class="wmd-preview-section preview-content">
+
+<h4 id="规避null">规避<code>null</code></h4>
+
+<p>大意粗心的使用<code>null</code>可会造成各种各样的bug. 研读Google的基础代码库后，我们发现95%的集合库都不支持存入<code>null</code>值，而且它们在面临<code>null</code>时，不会逆来顺受，而是掷地有声的快速作出失败响应。而这种策略对开发者无疑是益处极大的。</p>
+
+<p>此外，<code>null</code>的意义还是模棱两可的。很难明确一个<code>null</code>返回值是代表何意。例如，<code>Map.get(key)</code>返回<code>null</code>既可以表示在map中的值是<code>null</code>, 也可以表示不存在map中。<code>null</code>或表示失败，或表示成功，或表示任何含义。因此，使用非<code>null</code>的值可使含义表达得更清晰明朗。</p>
+
+<p>即使如此，但正确的使用<code>null</code>却能带来内存和时间上的节省。而且在对象数组里，<code>null</code>是不可避免的。与类库比之，在应用代码里，它却是狡黠而迷惑的，诡异而难以细查的bug源头。最值一提的是，一个<code>null</code>值不具任何意义。</p>
+
+<p>之于这些原因，许多Guava工具在设计时，都能对<code>null</code>作出快速失败响应，即直接拒绝处理<code>null</code>。然而，也有适用于<code>null</code>场景的解决方案。 <br>
+当你必需要应对<code>null</code>时，Guava提供有很多工具来辅助你简易便利的使用<code>null</code>。</p></div><div id="wmd-preview-section-71" class="wmd-preview-section preview-content">
+
+<h5 id="特定场景specific-cases">特定场景(Specific Cases)</h5>
+
+<p>如果你想把<code>null</code>作为<code>Set</code>的值或作为<code>Map</code>的key – 那么不要那么做。 <br>
+通常你在作检索操作时，明确的指定使用<code>null</code>场景，效果会更一目了然。 <br>
+如果你想把<code>null</code>作为<code>Map</code>的值 – 那么就省去那个<code>Entry</code>吧。 <br>
+在<code>Set</code>中保持单一的非<code>null</code>值吧。</p>
+
+<p>我们很容易混淆这种情况：<code>Key</code>在<code>Map</code>中的值为<code>null</code> 与<code>Key</code>在<code>Map</code>中固已没有值。 <br>
+此时，分离这些特有的<code>key</code>出来会稍显好处，并需要思考与这些<code>key</code>关联的<code>null</code>在应用中具体是何意。</p>
+
+<p>如果你想在一个稀疏的<code>List</code>里使用null值， 那为什么不考虑使用<code>Map&lt;Integer, E&gt;</code>呢。这种实际上还可能更高效一点，还能潜在的更准确的满足你得应用需要。</p>
+
+<p>虑及到空对象这种情况，虽然不一定常常用到，但也时有偶为。例如，为一个枚举类型添加一个表示空含义的常量，就像<code>java.math.RoundingMode</code>用<code>UNNECESSARY</code>来表示不需作舍入值，如果设定为该值，则抛一例异常而出。</p>
+
+<p>如果真的需要<code>null</code>值，但又用到了不能处理<code>null</code>的集合实现，可尝试使用多种不同的实现，亦如使用<code>Collections.unmodifiableList(Lists.newArrayList())</code> 来代替<code>ImmutableList</code>。</p></div><div id="wmd-preview-section-85" class="wmd-preview-section preview-content">
+
+<h5 id="可选之optional">可选之(Optional)</h5>
+
+<p>在许多场景中，开发者用<code>null</code>来表示某种不存在的含义： 或许是，本应该有值，但却为空。 亦或许是，本应有一个值，但却无其容值之处(not be found)。似如针对key调用<code>Map.get</code>方法返回<code>null</code>这种情况。</p>
+
+<p><code>Optional&lt;T&gt;</code>可用一个非空值来替换一个可为空的T类型引用。一个<code>Optional</code>或包含一个非空的<code>T</code>引用(这种场景称之为present，即表示有值)， 或不包含任何值(这种场景称之为absent，表示缺乏值，即不存在值)。我们不会表述为Optional包含null值。</p></div><div id="wmd-preview-section-8" class="wmd-preview-section preview-content">
+
+<pre class="prettyprint hljs-dark"><code class="language-java hljs">    Optional&lt;Integer&gt; possible = Optional.of(<span class="hljs-number">5</span>);<br>    possible.isPresent(); <span class="hljs-comment">// returns true</span><br>    possible.get(); <span class="hljs-comment">// returns 5</span><br></code></pre>
+
+<p>即使<code>Optional</code>与其他程序环境中的<code>option(选项)</code>，<code>maybe(或许)</code>有些类似，但它却不具有直接的相似性。</p>
+
+<p>我们再次列举一些<code>Optional</code>的最常用的操作。</p>
+
+</div><div id="wmd-preview-section-100" class="wmd-preview-section preview-content">
+
+<h5 id="创建optional">创建<code>Optional</code></h5>
+
+<p><code>Optional</code>的这类方法都是静态的。</p>
+
+<table>
+<thead>
+<tr>
+  <th align="left">方法</th>
+  <th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+  <td align="left"><code>Optional.of(T)</code></td>
+  <td align="left">创建一个包含非null值的Optional对象，如果给定的值是null,则抛出异常</td>
+</tr>
+<tr>
+  <td align="left"><code>Optional.absent()</code></td>
+  <td align="left">返回某类型的不存在的Optional对象</td>
+</tr>
+<tr>
+  <td align="left"><code>Optional.fromNullable(T)</code></td>
+  <td align="left">根据可空的引用，转换成一个Optional对象。如果值为非空，则作为present, 反之作为absent</td>
+</tr>
+</tbody></table>
+</div><div id="wmd-preview-section-192" class="wmd-preview-section preview-content">
+
+<h5 id="查询方法">查询方法</h5>
+
+<p>针对特定值的<code>Optional</code>, 这类方法都是非静态的。</p>
+
+<table>
+<thead>
+<tr>
+  <th align="left">方法</th>
+  <th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+  <td align="left"><code>boolean isPresent()</code></td>
+  <td align="left">如果当前Optional包含非空实例，则返回<code>true</code></td>
+</tr>
+<tr>
+  <td align="left"><code>T get()</code></td>
+  <td align="left">返回Optional包含的T类型非空实例，如果为空，则抛出<code>IllegalStateException</code></td>
+</tr>
+<tr>
+  <td align="left"><code>T or(T)</code></td>
+  <td align="left">返回Optional包含的T类型实例，如果为空，则返回默认值</td>
+</tr>
+<tr>
+  <td align="left"><code>T orNull()</code></td>
+  <td align="left">返回Optional包含的T类型实例, 如果为空，则返回<code>null</code>。对应的方法为<code>fromNullable</code></td>
+</tr>
+<tr>
+  <td align="left"><code>Set&lt;T&gt; asSet()</code></td>
+  <td align="left">返回包含有Optional值的不可变的单例<code>Set</code>对象，如果没有值，则返回空<code>Set</code></td>
+</tr>
+</tbody></table>
+
+
+<p>除了这些方法，<code>Optional</code>还提供有很多便利的工具方法，详细请参见Javadoc。</p></div><div id="wmd-preview-section-128" class="wmd-preview-section preview-content">
+
+<h5 id="重点">重点</h5></div><div id="wmd-preview-section-142" class="wmd-preview-section preview-content">
+
+<h5 id="便捷方法">便捷方法</h5></div><div id="wmd-preview-section-13" class="wmd-preview-section preview-content"></div><div id="wmd-preview-section-footnotes" class="preview-content"></div></div></body></html>
